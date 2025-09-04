@@ -71,8 +71,8 @@ There are three release scenarios. The first path will cover the vast majority o
         *   **`exact_version`**: Optional - specify if you want a custom version number.
     *   **For "Create Pre-Release":**
         *   **`type`**: Choose `alpha`, `beta`, or `rc` for a pre-release.
-        *   **`action`**: Choose `continue` to increment the current pre-release, or `new` to start a new pre-release type.
-        *   **`level`**: Required when `action` is `new` - choose `patch`, `minor`, or `major`.
+        *   **`action`**: Choose `continue` to increment the current pre-release, `transition` to switch to a different pre-release type (e.g., from alpha.1 to beta.0), or `new` to start a new pre-release from stable.
+        *   **`level`**: Required when `action` is `new` - choose `patch`, `minor`, or `major`. Ignored for `transition`.
         *   **`exact_version`**: Optional - specify if you want a custom version number.
 5.  **Click "Run workflow".**
 
