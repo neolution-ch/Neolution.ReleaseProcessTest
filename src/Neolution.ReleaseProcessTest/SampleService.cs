@@ -115,13 +115,21 @@ public class SampleService
     }
 
     /// <summary>
-    /// New feature for v0.2.0 with enhanced functionality.
+    /// New feature for v0.2.0 with enhanced functionality and input validation.
     /// </summary>
-    public void NewFeatureForV020()
+    /// <param name="message">The message to process. Must not be null or whitespace.</param>
+    /// <exception cref="ArgumentException">Thrown when message is null or whitespace.</exception>
+    public void NewFeatureForV020(string message)
     {
         try
         {
-            Console.WriteLine("New feature for v0.2.0 executed successfully.");
+            ArgumentException.ThrowIfNullOrWhiteSpace(message);
+            Console.WriteLine($"New feature for v0.2.0 executed with message: {message}");
+        }
+        catch (ArgumentException ex)
+        {
+            Console.WriteLine($"Error in NewFeatureForV020: {ex.Message}");
+            throw;
         }
         catch (Exception ex)
         {
