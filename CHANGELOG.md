@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Improved input handling in GetGreeting method by trimming whitespace from name parameter
+
 ## [0.2.0] - 2025-09-04
 
 ### Added

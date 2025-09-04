@@ -18,7 +18,7 @@ public class SampleService
         try
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
-            return $"Hello, {name}! This is Neolution.ReleaseProcessTest library.";
+            return $"Hello, {name.Trim()}! This is Neolution.ReleaseProcessTest library.";
         }
         catch (ArgumentException ex)
         {
