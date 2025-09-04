@@ -67,7 +67,7 @@ There are three release scenarios. The first path will cover the vast majority o
 3.  **Click the "Run workflow" button.** Make sure the `main` branch is selected.
 4.  **Fill out the inputs:**
     *   **For "Create Stable Release":**
-        *   **`level`**: Choose `patch`, `minor`, or `major` depending on the changes in the "Unreleased" section.
+        *   **`level`**: Choose `patch`, `minor`, or `major` based on the changes in the "Unreleased" section, or select `auto` (default) to let the workflow determine the level automatically. Use `auto` when transitioning from a pre-release to stable.
         *   **`exact_version`**: Optional - specify if you want a custom version number.
     *   **For "Create Pre-Release":**
         *   **`type`**: Choose `alpha`, `beta`, or `rc` for a pre-release.
