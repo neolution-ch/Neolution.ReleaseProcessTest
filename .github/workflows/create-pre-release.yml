@@ -29,10 +29,6 @@ on:
           - minor
           - major
         default: 'patch'
-      exact_version:
-        description: 'Exact version (optional, overrides other settings)'
-        required: false
-        type: string
 
 permissions:
   contents: write
@@ -86,9 +82,7 @@ jobs:
           fi
           echo "HAS_PRERELEASE=$HAS_PRERELEASE" >> $GITHUB_ENV
 
-          if [[ -n "${{ inputs.exact_version }}" ]]; then
-            echo "USE_EXACT_VERSION=true" >> $GITHUB_ENV
-          elif [[ "${{ inputs.action }}" == "continue" ]]; then
+          if [[ "${{ inputs.action }}" == "continue" ]]; then
             if [[ "$CURRENT_VERSION" == *"-${{ inputs.type }}."* ]]; then
               echo "USE_CONTINUE=true" >> $GITHUB_ENV
             else
@@ -115,19 +109,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [[ "$USE_EXACT_VERSION" == "true" ]]; then
-            VERSION="${{ inputs.exact_version }}"
-            # Validate version format
-            if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+(\.[0-9]+)?)?$ ]]; then
-              echo "Error: Invalid version format. Expected: X.Y.Z or X.Y.Z-prerelease"
-              exit 1
-            fi
-            release-it --new-version="$VERSION" --preRelease=${{ inputs.type }} \
-              --no-git.commit \
-              --github.preRelease \
-              --plugins.@release-it/keep-a-changelog.addUnreleased=false \
-              --ci
-          elif [[ "$USE_CONTINUE" == "true" ]]; then
+          if [[ "$USE_CONTINUE" == "true" ]]; then
             release-it --preRelease=${{ inputs.type }} \
               --no-git.commit \
               --github.preRelease \
@@ -153,9 +135,7 @@ jobs:
           echo "✅ Pre-release completed successfully!"
           echo "Branch: ${{ github.ref_name }}"
           echo "Type: ${{ inputs.type }}"
-          if [[ -n "${{ inputs.exact_version }}" ]]; then
-            echo "Exact Version: ${{ inputs.exact_version }}"
-          elif [[ "${{ inputs.action }}" == "continue" ]]; then
+          if [[ "${{ inputs.action }}" == "continue" ]]; then
             echo "Action: Continue current pre-release"
           elif [[ "${{ inputs.action }}" == "transition" ]]; then
             echo "Action: Transition to new pre-release type"
