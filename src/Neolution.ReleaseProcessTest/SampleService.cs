@@ -141,7 +141,7 @@ public class SampleService
 
     /// <summary>
     /// Related functionality for v0.2.0 feature completion.
-    /// Processes the message and returns an enhanced result.
+    /// Processes the message and returns an enhanced result with uppercase transformation.
     /// </summary>
     /// <param name="message">The message to process. Must not be null or whitespace.</param>
     /// <returns>The processed message in uppercase with prefix.</returns>

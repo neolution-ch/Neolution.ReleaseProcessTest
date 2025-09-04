@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Capitalized 'Library' in GetGreeting method greeting message
+- Improved documentation in GetProcessedMessage method
 
 ## [0.2.1] - 2025-09-04
 
