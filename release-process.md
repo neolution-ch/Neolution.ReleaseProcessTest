@@ -23,7 +23,10 @@ Our release process is designed to achieve the following:
 To achieve these goals, we will use the following tools and standards:
 - [Semantic Versioning](https://semver.org/)
 - [Keep a Changelog](https://keepachangelog.com/)
-- A **single, manual-trigger GitHub Action** powered by standard command-line tools and actions.
+- **Three manual-trigger GitHub Actions** powered by standard command-line tools and actions:
+  - `Create Stable Release`: For production releases from main branch
+  - `Create Pre-Release`: For alpha/beta/rc releases from main branch
+  - `Create Branch Release`: For releases from release/* and hotfix/* branches
 
 ## The Developer's Responsibility: The Changelog Contract
 
@@ -58,11 +61,19 @@ There are three release scenarios. The first path will cover the vast majority o
 **Use this path when you want to release all the new features and fixes that have been merged into the `main` branch.** This process is the same for stable (`1.2.3`), release candidate (`-rc.0`), beta, and alpha releases.
 
 1.  **Go to your repository's "Actions" tab.**
-2.  **Select the "Release OSS Package" workflow.**
+2.  **Select the appropriate workflow:**
+    *   For stable releases: Select "Create Stable Release"
+    *   For pre-releases (alpha/beta/rc): Select "Create Pre-Release"
 3.  **Click the "Run workflow" button.** Make sure the `main` branch is selected.
 4.  **Fill out the inputs:**
-    *   **`level`**: Choose `patch`, `minor`, or `major` depending on the changes in the "Unreleased" section.
-    *   **`type`**: Choose `stable` for a production release, or `rc`, `beta`, `alpha` for a pre-release.
+    *   **For "Create Stable Release":**
+        *   **`level`**: Choose `patch`, `minor`, or `major` depending on the changes in the "Unreleased" section.
+        *   **`exact_version`**: Optional - specify if you want a custom version number.
+    *   **For "Create Pre-Release":**
+        *   **`type`**: Choose `alpha`, `beta`, or `rc` for a pre-release.
+        *   **`action`**: Choose `continue` to increment the current pre-release, or `new` to start a new pre-release type.
+        *   **`level`**: Required when `action` is `new` - choose `patch`, `minor`, or `major`.
+        *   **`exact_version`**: Optional - specify if you want a custom version number.
 5.  **Click "Run workflow".**
 
 **That's it. The automation handles everything else:**
@@ -94,7 +105,7 @@ There are three release scenarios. The first path will cover the vast majority o
     *From this point, the `release/v2.0.0` branch is feature-frozen. Only fixes for this specific release are allowed. `main` is now free to accept features for the next version (e.g., `2.1.0`).*
 
 2.  **Publish Pre-Releases (e.g., RCs) from the Release Branch.**
-    *   Go to Actions, select the "Release OSS Package" workflow.
+    *   Go to Actions, select the "Create Branch Release" workflow.
     *   **Crucially, use the "Branch" dropdown to select your `release/v2.0.0` branch.**
     *   For the inputs, specify the **exact version number** (e.g., `2.0.0-rc.0`) and set the `type` to `rc` (or `beta`).
 
@@ -110,7 +121,7 @@ There are three release scenarios. The first path will cover the vast majority o
     ```
 
 4.  **Publish the Final Stable Release.**
-    *   Run the workflow one last time from the `release/v2.0.0` branch.
+    *   Run the "Create Branch Release" workflow one last time from the `release/v2.0.0` branch.
     *   Specify the **exact version number** (e.g., `2.0.0`) and set the `type` to `stable`.
 
 5.  **Clean up.** The `release/v2.0.0` branch can now be safely deleted.
@@ -142,7 +153,7 @@ This process involves a few manual Git commands because it is an exceptional eve
     ```
 
 5.  **Run the Release Workflow from the Hotfix Branch.**
-    *   Go to the "Actions" tab and select the "Release OSS Package" workflow.
+    *   Go to the "Actions" tab and select the "Create Branch Release" workflow.
     *   **Crucially, use the "Branch" dropdown to select your `hotfix/v1.2.4` branch.**
     *   For the inputs, specify the **exact version number** (e.g., `1.2.4`) and set the type to `stable`.
 
@@ -166,4 +177,5 @@ This process involves a few manual Git commands because it is an exceptional eve
 To create the very first release of a package (e.g., `0.1.0`):
 1. Ensure your `CHANGELOG.md` file is created and has an `[Unreleased]` section with an entry like "Initial release 🎉".
 2. Follow **Path 1: The Standard Release**.
-3. Set the `level` input to `minor` and the `type` to `stable`. This will create the `0.1.0` release.
+3. Select the "Create Stable Release" workflow.
+4. Set the `level` input to `minor` and optionally specify `exact_version` as `0.1.0`. This will create the `0.1.0` release.
