@@ -93,10 +93,8 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
           if [[ "${{ inputs.type }}" == "stable" ]]; then
-            # Stable release - don't commit, don't update changelog
+            # Stable release - update changelog and commit
             release-it --new-version="$VERSION" \
-              --no-git.commit \
-              --plugins.@release-it/keep-a-changelog.addUnreleased=false \
               --ci
           else
             # Pre-release - don't commit, mark as pre-release, don't update changelog
