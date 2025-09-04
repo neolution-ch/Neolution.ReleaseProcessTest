@@ -137,4 +137,31 @@ public class SampleService
             throw;
         }
     }
+
+    /// <summary>
+    /// Related functionality for v0.2.0 feature completion.
+    /// Processes the message and returns an enhanced result.
+    /// </summary>
+    /// <param name="message">The message to process. Must not be null or whitespace.</param>
+    /// <returns>The processed message in uppercase with prefix.</returns>
+    /// <exception cref="ArgumentException">Thrown when message is null or whitespace.</exception>
+    public string GetProcessedMessage(string message)
+    {
+        try
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(message);
+            NewFeatureForV020(message);
+            return $"Processed: {message.ToUpper()}";
+        }
+        catch (ArgumentException ex)
+        {
+            Console.WriteLine($"Error in GetProcessedMessage: {ex.Message}");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in GetProcessedMessage: {ex.Message}");
+            throw;
+        }
+    }
 }
