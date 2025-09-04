@@ -4,16 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       level:
-        description: 'Version increment level'
+        description: 'Version increment level (use "auto" for automatic determination)'
         required: false
         type: choice
         options:
+          - auto
           - patch
           - minor
           - major
-        default: 'patch'
       exact_version:
-        description: 'Exact version (optional, overrides level)'
+        description: 'Exact version (optional, overrides automatic determination)'
         required: false
         type: string
 
@@ -54,10 +54,13 @@ jobs:
             exit 1
           fi
 
-      - name: Run release-it
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Determine version
         run: |
+          # Get current version from git tags
+          CURRENT_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          CURRENT_VERSION=${CURRENT_VERSION#v}  # Remove 'v' prefix
+          echo "Current version: $CURRENT_VERSION"
+
           if [[ -n "${{ inputs.exact_version }}" ]]; then
             VERSION="${{ inputs.exact_version }}"
             # Validate version format
@@ -65,9 +68,44 @@ jobs:
               echo "Error: Invalid version format. Expected: X.Y.Z"
               exit 1
             fi
+            echo "Using exact version: $VERSION"
+          else
+            # Check if current version is pre-release
+            if [[ "$CURRENT_VERSION" == *"-alpha"* || "$CURRENT_VERSION" == *"-beta"* || "$CURRENT_VERSION" == *"-rc"* ]]; then
+              # Use base version for stable release
+              BASE_VERSION=${CURRENT_VERSION%-*}
+              VERSION="$BASE_VERSION"
+              echo "Current version is pre-release. Using base version: $VERSION"
+            else
+              # Require level input
+              if [[ -z "${{ inputs.level }}" ]]; then
+                echo "Error: level input is required when current version is stable"
+                exit 1
+              fi
+              LEVEL="${{ inputs.level }}"
+              if [[ "$LEVEL" == "auto" ]]; then
+                LEVEL="patch"
+                echo "Current version is stable. Using auto level: $LEVEL"
+              else
+                echo "Current version is stable. Using level: $LEVEL"
+              fi
+              echo "LEVEL=$LEVEL" >> $GITHUB_ENV
+              # Will use release-it with level
+            fi
+          fi
+
+          # Set VERSION for later use
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "USE_EXACT=$([[ -n "$VERSION" ]] && echo "true" || echo "false")" >> $GITHUB_ENV
+
+      - name: Run release-it
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ "$USE_EXACT" == "true" ]]; then
             release-it --new-version="$VERSION" --ci
           else
-            release-it ${{ inputs.level }} --ci
+            release-it $LEVEL --ci
           fi
 
       - name: Display release information
@@ -77,8 +115,14 @@ jobs:
           echo "Type: stable"
           if [[ -n "${{ inputs.exact_version }}" ]]; then
             echo "Exact Version: ${{ inputs.exact_version }}"
+          elif [[ "$USE_EXACT" == "true" ]]; then
+            echo "Auto-determined Version: $VERSION"
           else
-            echo "Level: ${{ inputs.level }}"
+            if [[ "${{ inputs.level }}" == "auto" ]]; then
+              echo "Level: auto (patch)"
+            else
+              echo "Level: ${{ inputs.level }}"
+            fi
           fi
           echo ""
           echo "🔗 Check the release: https://github.com/${{ github.repository }}/releases"
