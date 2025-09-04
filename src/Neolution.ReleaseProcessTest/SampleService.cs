@@ -113,4 +113,20 @@ public class SampleService
             throw;
         }
     }
+
+    /// <summary>
+    /// New feature for v0.2.0 with enhanced functionality.
+    /// </summary>
+    public void NewFeatureForV020()
+    {
+        try
+        {
+            Console.WriteLine("New feature for v0.2.0 executed successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in NewFeatureForV020: {ex.Message}");
+            throw;
+        }
+    }
 }
