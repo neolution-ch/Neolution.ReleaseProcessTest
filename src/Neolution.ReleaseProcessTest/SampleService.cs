@@ -11,14 +11,16 @@ public class SampleService
     /// </summary>
     /// <remarks>This method is part of the stable release preparation for v0.2.0.</remarks>
     /// <param name="name">The name to greet. Must not be null or whitespace.</param>
+    /// <param name="capitalize">Whether to capitalize the greeting message.</param>
     /// <returns>A greeting message</returns>
     /// <exception cref="ArgumentException">Thrown when name is null or whitespace.</exception>
-    public string GetGreeting(string name)
+    public string GetGreeting(string name, bool capitalize = false)
     {
         try
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
-            return $"Hello, {name.Trim()}! This is Neolution.ReleaseProcessTest library.";
+            var greeting = $"Hello, {name.Trim()}! This is Neolution.ReleaseProcessTest library.";
+            return capitalize ? greeting.ToUpper() : greeting;
         }
         catch (ArgumentException ex)
         {
