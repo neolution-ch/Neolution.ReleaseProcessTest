@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release 🎉
 - SampleService class with greeting and calculation functionality
 - Initial feature for alpha release
+- Feature completion for beta release
 
 ### Fixed
 - Bug fix for alpha release
