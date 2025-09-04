@@ -12,10 +12,6 @@ on:
           - patch
           - minor
           - major
-      exact_version:
-        description: 'Exact version (optional, overrides automatic determination)'
-        required: false
-        type: string
 
 permissions:
   contents: write
@@ -61,15 +57,7 @@ jobs:
           CURRENT_VERSION=${CURRENT_VERSION#v}  # Remove 'v' prefix
           echo "Current version: $CURRENT_VERSION"
 
-          if [[ -n "${{ inputs.exact_version }}" ]]; then
-            VERSION="${{ inputs.exact_version }}"
-            # Validate version format
-            if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "Error: Invalid version format. Expected: X.Y.Z"
-              exit 1
-            fi
-            echo "Using exact version: $VERSION"
-          else
+          # Automatic version determination
             # Check if current version is pre-release
             if [[ "$CURRENT_VERSION" == *"-alpha"* || "$CURRENT_VERSION" == *"-beta"* || "$CURRENT_VERSION" == *"-rc"* ]]; then
               # Use base version for stable release
@@ -96,13 +84,12 @@ jobs:
 
           # Set VERSION for later use
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "USE_EXACT=$([[ -n "$VERSION" ]] && echo "true" || echo "false")" >> $GITHUB_ENV
 
       - name: Run release-it
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [[ "$USE_EXACT" == "true" ]]; then
+          if [[ -n "$VERSION" ]]; then
             release-it --new-version="$VERSION" --ci
           else
             release-it $LEVEL --ci
@@ -113,10 +100,8 @@ jobs:
           echo "✅ Stable release completed successfully!"
           echo "Branch: ${{ github.ref_name }}"
           echo "Type: stable"
-          if [[ -n "${{ inputs.exact_version }}" ]]; then
-            echo "Exact Version: ${{ inputs.exact_version }}"
-          elif [[ "$USE_EXACT" == "true" ]]; then
-            echo "Auto-determined Version: $VERSION"
+          if [[ -n "$VERSION" ]]; then
+            echo "Version: $VERSION"
           else
             if [[ "${{ inputs.level }}" == "auto" ]]; then
               echo "Level: auto (patch)"
