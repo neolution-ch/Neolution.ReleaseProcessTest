@@ -156,16 +156,8 @@ This process involves a few manual Git commands because it is an exceptional eve
     *   For the inputs, set the `type` to `stable`. The version will be automatically parsed from the branch name.
 
 6.  **Merge the Hotfix Back into `main`.** This is a critical final step to ensure the fix is not lost in future releases.
-    ```bash
-    # Switch back to main and make sure it's up-to-date
-    git checkout main
-    git pull
-
-    # Merge the completed hotfix branch
-    git merge --no-ff hotfix/v1.2.4
-    git push
-    ```
-    *You may need to resolve a small merge conflict in `CHANGELOG.md`. This is expected. Simply ensure the fix is noted in the `[Unreleased]` section of `main`'s changelog.*
+    *   Since `main` is protected, create a pull request (PR) from the `hotfix/v1.2.4` branch to `main` and merge it through the GitHub UI.
+    *   You may need to resolve a small merge conflict in `CHANGELOG.md`. This is expected. Simply ensure the fix is noted in the `[Unreleased]` section of `main`'s changelog.
 
 7.  **Clean up.** The `hotfix/v1.2.4` branch can now be safely deleted from GitHub and your local machine.
 
