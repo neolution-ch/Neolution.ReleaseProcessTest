@@ -9,6 +9,7 @@ public class SampleService
     /// <summary>
     /// Gets a greeting message with improved error handling.
     /// </summary>
+    /// <remarks>This method is part of the stable release preparation for v0.2.0.</remarks>
     /// <param name="name">The name to greet. Must not be null or whitespace.</param>
     /// <returns>A greeting message</returns>
     /// <exception cref="ArgumentException">Thrown when name is null or whitespace.</exception>
