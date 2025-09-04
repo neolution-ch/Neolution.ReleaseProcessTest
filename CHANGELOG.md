@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Breaking change: Modified GetGreeting method signature to include optional capitalize parameter
+- Renamed create-release.yml to create-branch-release.yml for workflow naming consistency
 
 ## [0.2.1] - 2025-09-04
 
