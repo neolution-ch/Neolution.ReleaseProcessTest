@@ -167,4 +167,40 @@ public class SampleService
             throw;
         }
     }
+
+    /// <summary>
+    /// Advanced greeting method for v1.0.0-alpha.1 with enhanced customization options.
+    /// </summary>
+    /// <param name="name">The name to greet. Must not be null or whitespace.</param>
+    /// <param name="style">The greeting style (e.g., "formal", "casual").</param>
+    /// <returns>A customized greeting message</returns>
+    /// <exception cref="ArgumentException">Thrown when name is null or whitespace.</exception>
+    public string GetAdvancedGreeting(string name, string style = "casual")
+    {
+        try
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(name);
+            ArgumentException.ThrowIfNullOrWhiteSpace(style);
+
+            string baseGreeting = GetGreeting(name);
+            string prefix = style.ToLower() switch
+            {
+                "formal" => "Greetings",
+                "casual" => "Hey",
+                _ => "Hello"
+            };
+
+            return $"{prefix}, {name.Trim()}! {baseGreeting.Replace("Hello", "").TrimStart()}";
+        }
+        catch (ArgumentException ex)
+        {
+            Console.WriteLine($"Error in GetAdvancedGreeting: {ex.Message}");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Unexpected error in GetAdvancedGreeting: {ex.Message}");
+            throw;
+        }
+    }
 }

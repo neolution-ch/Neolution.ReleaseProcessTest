@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added GetAdvancedGreeting method with customizable greeting styles
+
 ### Changed
 - Breaking change: Modified GetGreeting method signature to include optional capitalize parameter
 
