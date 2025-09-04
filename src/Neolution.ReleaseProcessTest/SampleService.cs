@@ -32,6 +32,7 @@ public class SampleService
     /// </summary>
     public void InitialFeature()
     {
-        // Placeholder for initial feature implementation
+        // Fixed: Added implementation to log feature execution
+        Console.WriteLine("Initial feature executed successfully.");
     }
 }
