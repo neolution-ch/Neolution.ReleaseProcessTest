@@ -1,51 +1,116 @@
 namespace Neolution.ReleaseProcessTest;
 
 /// <summary>
-/// A sample service class for testing the release process
+/// A sample service class for testing the release process.
+/// This class provides basic operations and features for demonstration purposes.
 /// </summary>
 public class SampleService
 {
     /// <summary>
-    /// Gets a greeting message
+    /// Gets a greeting message with improved error handling.
     /// </summary>
-    /// <param name="name">The name to greet</param>
+    /// <param name="name">The name to greet. Must not be null or whitespace.</param>
     /// <returns>A greeting message</returns>
+    /// <exception cref="ArgumentException">Thrown when name is null or whitespace.</exception>
     public string GetGreeting(string name)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
-        return $"Hello, {name}! This is Neolution.ReleaseProcessTest library.";
+        try
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(name);
+            return $"Hello, {name}! This is Neolution.ReleaseProcessTest library.";
+        }
+        catch (ArgumentException ex)
+        {
+            // Log the error for stabilization
+            Console.WriteLine($"Error in GetGreeting: {ex.Message}");
+            throw;
+        }
     }
 
     /// <summary>
-    /// Calculates the sum of two integers
+    /// Calculates the sum of two integers with overflow checking.
     /// </summary>
     /// <param name="a">First number</param>
     /// <param name="b">Second number</param>
     /// <returns>The sum of a and b</returns>
+    /// <exception cref="OverflowException">Thrown when the sum overflows.</exception>
     public int Add(int a, int b)
     {
-        return a + b;
+        try
+        {
+            checked
+            {
+                return a + b;
+            }
+        }
+        catch (OverflowException ex)
+        {
+            // Log the error for stabilization
+            Console.WriteLine($"Error in Add: {ex.Message}");
+            throw;
+        }
     }
 
     /// <summary>
-    /// Initial feature for alpha release
+    /// Initial feature for alpha release with enhanced error handling.
     /// </summary>
     public void InitialFeature()
     {
-        // Fixed: Added implementation to log feature execution
-        Console.WriteLine("Initial feature executed successfully.");
-        // Enhanced: Added additional logging for feature completion
-        Console.WriteLine("Feature initialization completed with enhanced logging.");
+        try
+        {
+            // Fixed: Added implementation to log feature execution
+            Console.WriteLine("Initial feature executed successfully.");
+            // Enhanced: Added additional logging for feature completion
+            Console.WriteLine("Feature initialization completed with enhanced logging.");
+        }
+        catch (Exception ex)
+        {
+            // Log any unexpected errors for stabilization
+            Console.WriteLine($"Error in InitialFeature: {ex.Message}");
+            throw;
+        }
     }
 
     /// <summary>
-    /// Feature completion method for beta release
+    /// Feature completion method for beta release with improved validation.
     /// </summary>
-    /// <param name="input">Input parameter for processing</param>
+    /// <param name="input">Input parameter for processing. Must not be null or whitespace.</param>
     /// <returns>Processed result</returns>
+    /// <exception cref="ArgumentException">Thrown when input is null or whitespace.</exception>
     public string FeatureCompletion(string input)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(input);
-        return $"Feature completed for input: {input}. Ready for beta release.";
+        try
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(input);
+            return $"Feature completed for input: {input}. Ready for beta release.";
+        }
+        catch (ArgumentException ex)
+        {
+            // Log the error for stabilization
+            Console.WriteLine($"Error in FeatureCompletion: {ex.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Stabilization method to ensure service readiness for release candidate.
+    /// Performs basic health checks and logs stabilization status.
+    /// </summary>
+    public void Stabilize()
+    {
+        try
+        {
+            // Perform basic stabilization checks
+            Console.WriteLine("Starting stabilization process...");
+            // Check if service is operational
+            var testGreeting = GetGreeting("Test");
+            Console.WriteLine($"Stabilization check passed: {testGreeting}");
+            Console.WriteLine("Service stabilized successfully for release candidate.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Stabilization failed: {ex.Message}");
+            throw;
+        }
     }
 }

@@ -13,5 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial feature for alpha release
 - Feature completion for beta release
 
+### Changed
+- Stabilization changes for release candidate
+
 ### Fixed
 - Bug fix for alpha release
