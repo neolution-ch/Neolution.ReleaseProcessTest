@@ -26,4 +26,12 @@ public class SampleService
     {
         return a + b;
     }
+
+    /// <summary>
+    /// Initial feature for alpha release
+    /// </summary>
+    public void InitialFeature()
+    {
+        // Placeholder for initial feature implementation
+    }
 }
