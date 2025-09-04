@@ -17,6 +17,7 @@ on:
         type: choice
         options:
           - continue
+          - transition
           - new
         default: 'continue'
       level:
@@ -76,6 +77,15 @@ jobs:
           CURRENT_VERSION=${CURRENT_VERSION#v}
           echo "Current version: $CURRENT_VERSION"
 
+          if [[ "$CURRENT_VERSION" == *-* ]]; then
+            BASE_VERSION=${CURRENT_VERSION%%-*}
+            HAS_PRERELEASE=true
+            echo "BASE_VERSION=$BASE_VERSION" >> $GITHUB_ENV
+          else
+            HAS_PRERELEASE=false
+          fi
+          echo "HAS_PRERELEASE=$HAS_PRERELEASE" >> $GITHUB_ENV
+
           if [[ -n "${{ inputs.exact_version }}" ]]; then
             echo "USE_EXACT_VERSION=true" >> $GITHUB_ENV
           elif [[ "${{ inputs.action }}" == "continue" ]]; then
@@ -85,8 +95,20 @@ jobs:
               echo "Error: Cannot continue ${{ inputs.type }} - current version doesn't contain -${{ inputs.type }}"
               exit 1
             fi
+          elif [[ "${{ inputs.action }}" == "transition" ]]; then
+            if [[ "$HAS_PRERELEASE" == "true" ]]; then
+              echo "USE_TRANSITION=true" >> $GITHUB_ENV
+            else
+              echo "Error: Cannot transition - no existing pre-release to transition from"
+              exit 1
+            fi
           else
-            echo "USE_NEW=true" >> $GITHUB_ENV
+            if [[ "$HAS_PRERELEASE" == "true" ]]; then
+              echo "Error: Cannot create new pre-release - existing pre-release found, use 'transition' instead"
+              exit 1
+            else
+              echo "USE_NEW=true" >> $GITHUB_ENV
+            fi
           fi
 
       - name: Run release-it
@@ -111,7 +133,14 @@ jobs:
               --github.preRelease \
               --plugins.@release-it/keep-a-changelog.addUnreleased=false \
               --ci
-          else
+          elif [[ "$USE_TRANSITION" == "true" ]]; then
+            VERSION="${BASE_VERSION}-${{ inputs.type }}.0"
+            release-it --new-version="$VERSION" --preRelease=${{ inputs.type }} \
+              --no-git.commit \
+              --github.preRelease \
+              --plugins.@release-it/keep-a-changelog.addUnreleased=false \
+              --ci
+          elif [[ "$USE_NEW" == "true" ]]; then
             release-it ${{ inputs.level }} --preRelease=${{ inputs.type }} \
               --no-git.commit \
               --github.preRelease \
@@ -128,6 +157,8 @@ jobs:
             echo "Exact Version: ${{ inputs.exact_version }}"
           elif [[ "${{ inputs.action }}" == "continue" ]]; then
             echo "Action: Continue current pre-release"
+          elif [[ "${{ inputs.action }}" == "transition" ]]; then
+            echo "Action: Transition to new pre-release type"
           else
             echo "Action: New pre-release"
             echo "Level: ${{ inputs.level }}"
