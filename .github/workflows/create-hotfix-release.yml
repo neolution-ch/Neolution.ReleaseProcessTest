@@ -1,4 +1,4 @@
-name: Create Branch Release
+name: Create Hotfix Release
 
 on:
   workflow_dispatch:
@@ -48,27 +48,19 @@ jobs:
           BRANCH_NAME="${{ github.ref_name }}"
           echo "Current branch: $BRANCH_NAME"
 
-          if [[ "$BRANCH_NAME" == release/* ]]; then
-            echo "BRANCH_TYPE=release" >> $GITHUB_ENV
-            echo "Running stabilization release from release branch"
-          elif [[ "$BRANCH_NAME" == hotfix/* ]]; then
+          if [[ "$BRANCH_NAME" == hotfix/* ]]; then
             echo "BRANCH_TYPE=hotfix" >> $GITHUB_ENV
             echo "Running hotfix release from hotfix branch"
           else
-            echo "Error: Branch releases can only be created from release/* or hotfix/* branches"
+            echo "Error: Hotfix releases can only be created from hotfix/* branches"
             exit 1
           fi
 
-      - name: Parse version from branch name
+      - name: Detect version from git history
         run: |
-          BRANCH_NAME="${{ github.ref_name }}"
-          if [[ "$BRANCH_NAME" == release/* ]]; then
-            BASE_VERSION=${BRANCH_NAME#release/v}
-          elif [[ "$BRANCH_NAME" == hotfix/* ]]; then
-            MERGE_BASE=$(git merge-base HEAD main)
-            LATEST_TAG=$(git describe --tags --abbrev=0 $MERGE_BASE)
-            BASE_VERSION=${LATEST_TAG#v}
-          fi
+          MERGE_BASE=$(git merge-base HEAD origin/main)
+          LATEST_TAG=$(git describe --tags --abbrev=0 $MERGE_BASE)
+          BASE_VERSION=${LATEST_TAG#v}
           echo "BASE_VERSION=$BASE_VERSION" >> $GITHUB_ENV
 
 
@@ -96,11 +88,11 @@ jobs:
 
           if [[ "${{ inputs.type }}" == "stable" ]]; then
             # Stable release - update changelog and commit
-            release-it --new-version="$VERSION" \
+            release-it --increment="$VERSION" \
               --ci
           else
             # Pre-release - don't commit, mark as pre-release, don't update changelog
-            release-it --new-version="$VERSION" --preRelease=${{ inputs.type }} \
+            release-it --increment="$VERSION" \
               --no-git.commit \
               --github.preRelease \
               --plugins.@release-it/keep-a-changelog.addUnreleased=false \
@@ -109,7 +101,7 @@ jobs:
 
       - name: Display release information
         run: |
-          echo "✅ Branch release completed successfully!"
+          echo "✅ Hotfix release completed successfully!"
           echo "Branch: ${{ github.ref_name }}"
           echo "Branch Type: ${{ env.BRANCH_TYPE }}"
           echo "Release Type: ${{ inputs.type }}"
