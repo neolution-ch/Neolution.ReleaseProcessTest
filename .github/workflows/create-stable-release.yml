@@ -4,11 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       level:
-        description: 'Version increment level (use "auto" for automatic determination)'
-        required: false
+        description: 'Version increment level'
         type: choice
         options:
-          - auto
           - patch
           - minor
           - major
@@ -50,65 +48,18 @@ jobs:
             exit 1
           fi
 
-      - name: Determine version
-        run: |
-          # Get current version from git tags
-          CURRENT_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          CURRENT_VERSION=${CURRENT_VERSION#v}  # Remove 'v' prefix
-          echo "Current version: $CURRENT_VERSION"
-
-          # Automatic version determination
-            # Check if current version is pre-release
-            if [[ "$CURRENT_VERSION" == *"-alpha"* || "$CURRENT_VERSION" == *"-beta"* || "$CURRENT_VERSION" == *"-rc"* ]]; then
-              # Use base version for stable release
-              BASE_VERSION=${CURRENT_VERSION%-*}
-              VERSION="$BASE_VERSION"
-              echo "Current version is pre-release. Using base version: $VERSION"
-            else
-              # Require level input
-              if [[ -z "${{ inputs.level }}" ]]; then
-                echo "Error: level input is required when current version is stable"
-                exit 1
-              fi
-              LEVEL="${{ inputs.level }}"
-              if [[ "$LEVEL" == "auto" ]]; then
-                LEVEL="patch"
-                echo "Current version is stable. Using auto level: $LEVEL"
-              else
-                echo "Current version is stable. Using level: $LEVEL"
-              fi
-              echo "LEVEL=$LEVEL" >> $GITHUB_ENV
-              # Will use release-it with level
-            fi
-          fi
-
-          # Set VERSION for later use
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
       - name: Run release-it
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [[ -n "$VERSION" ]]; then
-            release-it --new-version="$VERSION" --ci --plugins.@release-it/keep-a-changelog.addVersionUrl=true
-          else
-            release-it $LEVEL --ci --plugins.@release-it/keep-a-changelog.addVersionUrl=true
-          fi
+          release-it ${{ inputs.level }} --ci --plugins.@release-it/keep-a-changelog.addVersionUrl=true
 
       - name: Display release information
         run: |
           echo "✅ Stable release completed successfully!"
           echo "Branch: ${{ github.ref_name }}"
           echo "Type: stable"
-          if [[ -n "$VERSION" ]]; then
-            echo "Version: $VERSION"
-          else
-            if [[ "${{ inputs.level }}" == "auto" ]]; then
-              echo "Level: auto (patch)"
-            else
-              echo "Level: ${{ inputs.level }}"
-            fi
-          fi
+          echo "Level: ${{ inputs.level }}"
           echo ""
           echo "🔗 Check the release: https://github.com/${{ github.repository }}/releases"
           echo "🏷️ View tags: https://github.com/${{ github.repository }}/tags"

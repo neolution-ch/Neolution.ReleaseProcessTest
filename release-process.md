@@ -73,7 +73,8 @@ There are three release scenarios. The first path will cover the vast majority o
 3.  **Click the "Run workflow" button.** Make sure the `main` branch is selected.
 4.  **Fill out the inputs:**
     *   **For "Create Stable Release":**
-        *   **`level`**: Choose `patch`, `minor`, or `major` based on the changes in the "Unreleased" section, or select `auto` (default) to let the workflow determine the level automatically. Use `auto` when transitioning from a pre-release to stable.
+        *   **`level`**: Choose `patch`, `minor`, or `major` based on the changes in the "Unreleased" section.
+            *   **Important**: If the latest Git tag is a pre-release (e.g., `v1.0.0-alpha.3`), all level options will result in stabilizing to the base version (`v1.0.0`). This is the intended behavior for transitioning from pre-release to stable.
     *   **For "Create Pre-Release":**
         *   **`type`**: Choose `alpha`, `beta`, or `rc` for a pre-release.
         *   **`action`**: Choose `continue` to increment the current pre-release, `transition` to switch to a different pre-release type (e.g., from alpha.1 to beta.0), or `new` to start a new pre-release from stable.
