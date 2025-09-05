@@ -90,9 +90,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ -n "$VERSION" ]]; then
-            release-it --new-version="$VERSION" --ci
+            release-it --new-version="$VERSION" --ci --plugins.@release-it/keep-a-changelog.addVersionUrl=true
           else
-            release-it $LEVEL --ci
+            release-it $LEVEL --ci --plugins.@release-it/keep-a-changelog.addVersionUrl=true
           fi
 
       - name: Display release information
