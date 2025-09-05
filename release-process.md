@@ -17,6 +17,7 @@ Our release process is designed to achieve the following:
 2.  **Developers interact with the GitHub UI, not complex Git commands.** Releases are triggered via a GitHub Actions workflow, not from a local machine.
 3.  **The `CHANGELOG.md` is our contract.** Every user-facing change must be accompanied by an entry in the changelog.
 4.  **Releases are marked by tags, not branches.** The `main` branch is the only long-lived branch. All other branches (`feature/*`, `release/*`, `hotfix/*`) are temporary and must be deleted after their purpose is served.
+5.  **Main branch is protected - all merges must be via pull request. Only the GitHub release-bot may merge directly for changelog updates.**
 
 ## Tools
 
@@ -49,6 +50,11 @@ PR reviewers are responsible for enforcing this.
 ### Fixed
 - Resolved a null reference exception when the input string is empty.
 ```
+
+**CHANGELOG Integrity Rules**
+
+- CHANGELOG.md must only be manually edited under the [Unreleased] section.
+- During merge conflicts, only resolve conflicts without adding or removing entries.
 
 ---
 
@@ -133,8 +139,10 @@ This process involves a few manual Git commands because it is an exceptional eve
 1.  **Create a Hotfix Branch from the Old Version's Tag.**
     ```bash
     # On your local machine, check out the specific tag you need to patch
-    git checkout -b hotfix/v1.2.4 v1.2.3
+    git checkout -b hotfix/v1.2.3 v1.2.3
     ```
+
+    The version number is detected from git history. The branch name must start with the hotfix/ prefix.
 
 2.  **Apply the Fix.** There are two ways to do this:
     *   **A) The fix is already on `main`:** Cherry-pick the specific commit.
@@ -143,23 +151,23 @@ This process involves a few manual Git commands because it is an exceptional eve
         ```
     *   **B) The fix is new:** Make the code changes directly on this hotfix branch and commit them.
 
-3.  **Manually Update the Changelog.** On the `hotfix/v1.2.4` branch, edit `CHANGELOG.md` to document the fix under a new version heading. This is a rare manual edit for an exceptional case.
+3.  **Update the Changelog.** On the `hotfix/v1.2.3` branch, ensure the fix is documented in the `[Unreleased]` section of `CHANGELOG.md`. The workflow will automatically move it to a new version heading.
 
 4.  **Push the Hotfix Branch.**
     ```bash
-    git push --set-upstream origin hotfix/v1.2.4
+    git push --set-upstream origin hotfix/v1.2.3
     ```
 
 5.  **Run the Release Workflow from the Hotfix Branch.**
     *   Go to the "Actions" tab and select the "Create Branch Release" workflow.
-    *   **Crucially, use the "Branch" dropdown to select your `hotfix/v1.2.4` branch.**
+    *   **Crucially, use the "Branch" dropdown to select your `hotfix/v1.2.3` branch.**
     *   For the inputs, set the `type` to `stable`. The version will be automatically parsed from the branch name.
 
 6.  **Merge the Hotfix Back into `main`.** This is a critical final step to ensure the fix is not lost in future releases.
-    *   Since `main` is protected, create a pull request (PR) from the `hotfix/v1.2.4` branch to `main` and merge it through the GitHub UI.
-    *   You may need to resolve a small merge conflict in `CHANGELOG.md`. This is expected. Simply ensure the fix is noted in the `[Unreleased]` section of `main`'s changelog.
+    *   Since `main` is protected, create a pull request (PR) from the `hotfix/v1.2.3` branch to `main` and merge it through the GitHub UI.
+    *   You may need to resolve a small merge conflict in `CHANGELOG.md`. This is expected. Simply ensure the fix is noted in the `[Unreleased]` section of `main`'s changelog. During merge conflict resolution, do not add or remove entries; only resolve the conflict to maintain integrity.
 
-7.  **Clean up.** The `hotfix/v1.2.4` branch can now be safely deleted from GitHub and your local machine.
+7.  **Clean up.** The `hotfix/v1.2.3` branch can now be safely deleted from GitHub and your local machine.
 
 ---
 ### Initial Release
