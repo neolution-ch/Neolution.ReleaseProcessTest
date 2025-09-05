@@ -69,9 +69,30 @@ jobs:
 
       - name: Determine release command
         run: |
-          CURRENT_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          CURRENT_VERSION=${CURRENT_VERSION#v}
-          echo "Current version: $CURRENT_VERSION"
+          if [[ "${{ inputs.action }}" == "continue" ]]; then
+            # For continue, find the latest tag with the specified pre-release type
+            LATEST_PRERELEASE_TAG=$(git tag --list | grep -E "${{ inputs.type }}\.[0-9]+$" | sort -V | tail -1)
+            if [[ -n "$LATEST_PRERELEASE_TAG" ]]; then
+              CURRENT_VERSION=${LATEST_PRERELEASE_TAG#v}
+              echo "Current version for continue: $CURRENT_VERSION (from latest ${{ inputs.type }} tag)"
+              echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+              # Temporarily tag current commit with the correct current version for release-it
+              git tag -f "$LATEST_PRERELEASE_TAG" HEAD
+              echo "TEMP_TAG_CREATED=$LATEST_PRERELEASE_TAG" >> $GITHUB_ENV
+            else
+              echo "Error: No existing ${{ inputs.type }} pre-release tags found for continue"
+              exit 1
+            fi
+          else
+            CURRENT_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+            CURRENT_VERSION=${CURRENT_VERSION#v}
+            echo "Current version from git describe: $CURRENT_VERSION"
+          fi
+          echo "All tags:"
+          git tag --list
+          echo "Latest tag by date: $(git describe --tags --abbrev=0)"
+          echo "Action: ${{ inputs.action }}"
+          echo "Type: ${{ inputs.type }}"
 
           if [[ "$CURRENT_VERSION" == *-* ]]; then
             BASE_VERSION=${CURRENT_VERSION%%-*}
@@ -83,12 +104,8 @@ jobs:
           echo "HAS_PRERELEASE=$HAS_PRERELEASE" >> $GITHUB_ENV
 
           if [[ "${{ inputs.action }}" == "continue" ]]; then
-            if [[ "$CURRENT_VERSION" == *"-${{ inputs.type }}."* ]]; then
-              echo "USE_CONTINUE=true" >> $GITHUB_ENV
-            else
-              echo "Error: Cannot continue ${{ inputs.type }} - current version doesn't contain -${{ inputs.type }}"
-              exit 1
-            fi
+            echo "Continue action: using pre-release version $CURRENT_VERSION"
+            echo "USE_CONTINUE=true" >> $GITHUB_ENV
           elif [[ "${{ inputs.action }}" == "transition" ]]; then
             if [[ "$HAS_PRERELEASE" == "true" ]]; then
               echo "USE_TRANSITION=true" >> $GITHUB_ENV
@@ -110,11 +127,22 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ "$USE_CONTINUE" == "true" ]]; then
-            release-it --preRelease=${{ inputs.type }} \
-              --no-git.commit \
-              --github.preRelease \
-              --plugins.@release-it/keep-a-changelog.addUnreleased=false \
-              --ci
+            # Extract base version and current pre-release number
+            if [[ "$CURRENT_VERSION" =~ ^(.+)-${{ inputs.type }}\.([0-9]+)$ ]]; then
+              BASE_VERSION="${BASH_REMATCH[1]}"
+              CURRENT_NUM="${BASH_REMATCH[2]}"
+              NEXT_NUM=$((CURRENT_NUM + 1))
+              NEXT_VERSION="${BASE_VERSION}-${{ inputs.type }}.${NEXT_NUM}"
+              echo "Continuing from $CURRENT_VERSION to $NEXT_VERSION"
+              release-it --increment="$NEXT_VERSION" \
+                --no-git.commit \
+                --github.preRelease \
+                --plugins.@release-it/keep-a-changelog.addUnreleased=false \
+                --ci
+            else
+              echo "Error: Could not parse current version $CURRENT_VERSION"
+              exit 1
+            fi
           elif [[ "$USE_TRANSITION" == "true" ]]; then
             VERSION="${BASE_VERSION}-${{ inputs.type }}.0"
             release-it --new-version="$VERSION" --preRelease=${{ inputs.type }} \
@@ -129,6 +157,11 @@ jobs:
               --plugins.@release-it/keep-a-changelog.addUnreleased=false \
               --ci
           fi
+
+      - name: Cleanup temporary tag
+        if: env.TEMP_TAG_CREATED
+        run: |
+          git tag -d "$TEMP_TAG_CREATED"
 
       - name: Display release information
         run: |
