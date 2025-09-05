@@ -18,6 +18,7 @@ public class SampleService
     {
         try
         {
+            // Fixed: Improved greeting message for v0.3.0
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             var greeting = $"Hello, {name.Trim()}! This is Neolution.ReleaseProcessTest Library.";
             return capitalize ? greeting.ToUpper() : greeting;

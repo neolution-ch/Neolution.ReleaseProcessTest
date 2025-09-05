@@ -88,11 +88,11 @@ jobs:
 
           if [[ "${{ inputs.type }}" == "stable" ]]; then
             # Stable release - update changelog and commit
-            release-it --new-version="$VERSION" \
+            release-it --increment="$VERSION" \
               --ci
           else
             # Pre-release - don't commit, mark as pre-release, don't update changelog
-            release-it --new-version="$VERSION" --preRelease=${{ inputs.type }} \
+            release-it --increment="$VERSION" \
               --no-git.commit \
               --github.preRelease \
               --plugins.@release-it/keep-a-changelog.addUnreleased=false \
