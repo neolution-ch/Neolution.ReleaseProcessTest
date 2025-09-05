@@ -142,7 +142,7 @@ This process involves a few manual Git commands because it is an exceptional eve
     git checkout -b hotfix/v1.2.3 v1.2.3
     ```
 
-    The version number is detected from git history. The branch name must start with the hotfix/ prefix.
+    The version number is detected from git history. The branch name must start with the `hotfix/` prefix.
 
 2.  **Apply the Fix.** There are two ways to do this:
     *   **A) The fix is already on `main`:** Cherry-pick the specific commit.

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added GetAdvancedGreeting method with customizable greeting styles
+- Added NewSampleService class with GetGreetingList and SumNumbers methods for v1.0.0-alpha.3
 
 ### Changed
 - Breaking change: Modified GetGreeting method signature to include optional capitalize parameter
