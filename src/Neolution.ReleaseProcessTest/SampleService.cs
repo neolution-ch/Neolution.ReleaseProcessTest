@@ -17,6 +17,7 @@ public class SampleService
     {
         try
         {
+            // Fixed: Improved greeting message for v0.3.0
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             return $"Hello, {name.Trim()}! This is Neolution.ReleaseProcessTest Library.";
         }
